@@ -1,0 +1,9 @@
+{
+  "name": "connecty-api-server",
+  "version": "1.0.0",
+  "description": "The API Server for Connecty Web App",
+  "main": "server.js",
+  "repository": "git@github.com:tranconghuy456/connecty-api-server.git",
+  "author": "HuyDev",
+  "license": "MIT"
+}
