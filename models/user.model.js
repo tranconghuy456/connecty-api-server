@@ -80,5 +80,5 @@ const TokenSchema = mongoose.Schema({
   }
 })
 
-export const User = mongoose.Model("User", UserSchema);
-export const Token = mongoose.Model("Token", TokenSchema);
+export const UserModel = mongoose.Model("User", UserSchema);
+export const TokenModel = mongoose.Model("Token", TokenSchema);
