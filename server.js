@@ -4,6 +4,7 @@ import cors from "cors";
 import morgan from "morgan";
 import * as router from "./routes/root.js";
 import * as ENV from "./configs/root.js";
+import { useConnect } from "./helpers/db_connection_single.js";
 
 // init server
 const app = express();
@@ -34,17 +35,19 @@ app.get("/", (req, res, next) => {
 
 // authentication
 app.use("/api/v1/users/", router.userRouter);
+// db connection
+const db = await useConnect();
 
 app.listen(ENV.SERVER.PORT, (error) => {
   let log = {
     Server: {
       Port: ENV.SERVER.PORT,
-      State: !error ? "Conencted" : "ERROR.",
+      State: !error ? "Conencted" : "ERROR",
     },
-    // Database: {
-    //   Port: db.connection.port,
-    //   State: db.connection._readyState === 1 ? "Connected." : "ERROR.",
-    // },
+    Database: {
+      Port: db.connection.port,
+      State: db.connection._readyState === 1 ? "Connected" : "ERROR",
+    },
   };
   console.table(log);
 });
