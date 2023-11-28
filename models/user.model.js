@@ -1,84 +1,85 @@
 import mongoose from "mongoose";
+import * as ENV from "../configs/root.js";
 
-const UserSchema = mongoose.Schema({
+// init Schema
+const Schema = mongoose.Schema;
+
+const UserSchema = new Schema({
   firstname: {
     type: String,
-    required: true
+    max: [20, "Firstname too long (MAX: 20)"],
+    required: true,
   },
   lastname: {
     type: String,
-    required: true
+    max: [20, "Lastname too long (MAX: 20)"],
+    required: true,
   },
   age: {
     type: Number,
   },
   job: {
     type: String,
-    default: "Freelancer"
+    default: "Freelancer",
   },
   phone: {
-    type: String,
+    type: Number,
   },
   username: {
     type: String,
     required: true,
-    unique: true
+    unique: [true, "The Username must be unique"],
   },
   email: {
     type: String,
     required: true,
-    unique: true
+    unique: [true, "The Email must be unique"],
+    validate: {
+      validator: (value) => {
+        return ENV.SECURITY.REGEX["EMAIL"].test(value);
+      },
+      message: "Invalid Email address",
+    },
   },
   photoUrl: {
     type: String,
   },
   password: {
     type: String,
-    required: true
+    required: true,
   },
   role: {
     type: Number,
     required: true,
-    default: 3
+    default: 3,
   },
   isActived: {
     type: Boolean,
     required: true,
-    default: true
+    default: true,
   },
   createdAt: {
-    type: String,
+    type: Date,
     required: true,
-    default: Date.now()
+    default: Date.now(),
   },
   updatedAt: {
     type: Date,
     required: true,
-    default: Date.now()
+    default: Date.now(),
   },
-});
-
-const TokenSchema = mongoose.Schema({
   accessToken: {
     type: String,
-    required: true,
-    createdAt: [{ required: true, default: Date.now() }],
-    updatedAt: [{ required: true, default: Date.now() }],
+    createdAt: [{ type: Date, required: true, default: Date.now() }],
+    updatedAt: [{ type: Date, required: true, default: Date.now() }],
     expiredIn: [{ required: true, type: String }],
   },
   refreshToken: {
     type: String,
-    required: true,
     createdAt: [{ required: true, default: Date.now() }],
     updatedAt: [{ required: true, default: Date.now() }],
     expiredIn: [{ required: true, type: String }],
   },
-  userId: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
-    required: true
-  }
-})
+});
 
-export const UserModel = mongoose.Model("User", UserSchema);
-export const TokenModel = mongoose.Model("Token", TokenSchema);
+export const UserModel = mongoose.model("User", UserSchema);
