@@ -78,7 +78,7 @@ const login = async (req, res) => {
     let data = req.body;
 
     // if invalid data
-    if (!data.username)
+    if (!data.username) {
       return res.status(400).json({
         status: "error",
         errors: [
@@ -89,12 +89,13 @@ const login = async (req, res) => {
           },
         ],
       });
+    }
 
     // if valid
     // define user
     let user = await UserModel.findOne({ username: data.username });
     // if undefined user
-    if (!user)
+    if (!user) {
       return res.status(404).json({
         status: "error",
         errors: [
@@ -105,12 +106,13 @@ const login = async (req, res) => {
           },
         ],
       });
+    }
 
     // if defined
     // compare password
     let comparedPwd = await comparePassword(data.password, user.password);
     // if not match
-    if (!comparedPwd)
+    if (!comparedPwd) {
       return res.status(401).json({
         status: "error",
         errors: [
@@ -121,6 +123,7 @@ const login = async (req, res) => {
           },
         ],
       });
+    }
 
     // if match
     // generate token
@@ -137,9 +140,10 @@ const login = async (req, res) => {
       httpOnly: true,
     });
     // save refresh token to cookie
-    res.cookie("refresh_token", refreshToken, {
-      httpOnly: true,
-    });
+    // res.cookie("refresh_token", refreshToken, {
+    //   httpOnly: true,
+    // });
+    req.app.locals.Session = refreshToken;
 
     return res.status(200).json({
       status: "success",
@@ -159,4 +163,8 @@ const login = async (req, res) => {
   }
 };
 
-export { register, login };
+const recover = async (req, res) => {
+  
+};
+
+export { register, login, recover };

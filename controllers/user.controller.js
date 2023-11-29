@@ -2,7 +2,7 @@ import { UserModel } from "../models/user.model.js";
 
 const getUser = async (req, res) => {
   try {
-    let { username } = req.params;
+    let { username } = req?.params;
     // if invalid query
     if (!username)
       return res.status(400).json({

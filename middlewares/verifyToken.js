@@ -5,10 +5,10 @@ import { generateAccessToken } from "../utils/token.js";
 
 const verifyAccessToken = async (req, res, next) => {
   try {
-    let header = req.headers["x-access-token"] || req.headers["Authorization"];
+    let header = req.headers["x-access-token"] || req.headers["authorization"];
 
     // if header invalid
-    if (!header?.startsWith("Bearer "))
+    if (!header?.startsWith("Bearer ")) {
       return res.status(400).json({
         status: "error",
         errors: [
@@ -18,14 +18,13 @@ const verifyAccessToken = async (req, res, next) => {
           },
         ],
       });
+    }
 
     // checkpoint
     var token = header.split(" ")[1];
-    var user = await UserModel.findOne({
-      refreshToken: req.cookies["refresh_token"],
-    });
-    // if user is undefined
-    if (!user)
+
+    // if session is expired
+    if (!req.app.locals.Session) {
       return res.status(401).json({
         status: "error",
         errors: [
@@ -35,6 +34,7 @@ const verifyAccessToken = async (req, res, next) => {
           },
         ],
       });
+    }
 
     // if valid
     jwt.verify(
@@ -45,7 +45,7 @@ const verifyAccessToken = async (req, res, next) => {
         if (error && error.name == "TokenExpiredError") {
           try {
             // re-generate token
-            let decoded = await verifyRefreshToken(user.refreshToken);
+            let decoded = await verifyRefreshToken(req.app.locals.Session);
             token = await generateAccessToken({
               uid: decoded.uid,
               role: decoded.role,
@@ -60,6 +60,9 @@ const verifyAccessToken = async (req, res, next) => {
               throw new Error(error);
             });
           } catch (error) {
+            // reset session
+            req.app.locals.Session = null;
+
             return res.status(401).json({
               status: "error",
               errors: [
@@ -70,7 +73,9 @@ const verifyAccessToken = async (req, res, next) => {
               ],
             });
           }
-        } else if (error)
+        } else if (error) {
+          // reset session
+          req.app.locals.Session = null;
           return res.status(400).json({
             status: "error",
             errors: [
@@ -80,6 +85,7 @@ const verifyAccessToken = async (req, res, next) => {
               },
             ],
           });
+        }
         res.locals.payload = payload;
         next();
       }

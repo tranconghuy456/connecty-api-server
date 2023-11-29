@@ -4,6 +4,7 @@ import cors from "cors";
 import morgan from "morgan";
 import * as router from "./routes/root.js";
 import * as ENV from "./configs/root.js";
+import * as middleware from "./middlewares/root.js";
 import { useConnect } from "./helpers/db_connection_single.js";
 
 // init server
@@ -21,6 +22,8 @@ app.use(express.urlencoded({ extended: false }));
 
 // middleware for cookies
 app.use(cookieParser());
+// middleware for local variables
+app.use(middleware.localVariables);
 
 // bandwidth
 app.use(morgan("tiny"));

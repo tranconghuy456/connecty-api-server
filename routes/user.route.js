@@ -5,7 +5,9 @@ import * as middleware from "../middlewares/root.js";
 
 export const userRouter = Router();
 
-userRouter.route("/login").post(middleware.verifyUser, authController.login);
+userRouter
+  .route("/login")
+  .post(middleware.verifyUserByUsername, authController.login);
 userRouter.route("/register").post(authController.register);
 userRouter
   .route("/:username")
@@ -13,3 +15,5 @@ userRouter
   .put()
   .patch()
   .delete();
+
+userRouter.route("/recover").post().patch();
