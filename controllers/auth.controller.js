@@ -21,7 +21,7 @@ const register = async (req, res) => {
           },
         ],
       });
-    } else if (user?.username) {
+    } else if (user.username) {
       // if username is exist
       return res.status(409).json({
         status: "error",
@@ -147,7 +147,7 @@ const login = async (req, res) => {
 
     return res.status(200).json({
       status: "success",
-      data: { accessToken, refreshToken },
+      data: { accessToken },
     });
   } catch (error) {
     return res.status(500).json({
@@ -161,10 +161,60 @@ const login = async (req, res) => {
       ],
     });
   }
-};
+};  
 
 const recover = async (req, res) => {
-  
+  try {
+    let { email, password } = req.body;
+
+    // checkpoint
+    let user = await UserModel.findOne({ email });
+    // if undefined
+    if (!user) {
+      return res.status(400).json({
+        status: "error",
+        errors: [
+          {
+            message: "The Email you entered doesn't belong to any account",
+            code: 400,
+            field: "email",
+          },
+        ],
+      });
+    }
+    // if defined
+    // hashing password
+    let hashedPwd = await hashPassword(password, ENV.SECURITY.SALT_ROUNDS);
+
+    // updating
+    UserModel.findOneAndUpdate(
+      { _id: user._id.toHexString() },
+      { password: hashedPwd },
+      { new: true }
+    )
+      .then((result) => {
+        return res.status(200).json({
+          status: "success",
+          message: "Updated password",
+          code: 200,
+          data: { result },
+        });
+      })
+      .catch((error) => {
+        throw new Error(error);
+      });
+  } catch (error) {
+    return res.status(500).json({
+      status: "error",
+      errors: [
+        {
+          message: "Internal server error",
+          code: 500,
+          data: error,
+        },
+      ],
+    });
+  }
 };
 
 export { register, login, recover };

@@ -38,6 +38,8 @@ app.get("/", (req, res, next) => {
 
 // authentication
 app.use("/api/v1/users/", router.userRouter);
+// secure
+app.use("/api/v1/secure/", router.secureRouter);
 // db connection
 const db = await useConnect();
 

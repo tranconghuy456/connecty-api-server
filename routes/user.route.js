@@ -16,4 +16,4 @@ userRouter
   .patch()
   .delete();
 
-userRouter.route("/recover").post().patch();
+userRouter.route("/recover").post(authController.recover);

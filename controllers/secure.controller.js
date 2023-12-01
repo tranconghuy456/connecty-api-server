@@ -4,7 +4,8 @@ const generateOTP = async (req, res) => {
   try {
     // generate otp
     let otp = otpGenerator.generate(6, {
-      lowerCaseAlphabets: true,
+      lowerCaseAlphabets: false,
+      upperCaseAlphabets: false,
       specialChars: false,
     });
 
@@ -14,6 +15,7 @@ const generateOTP = async (req, res) => {
     return res.status(201).json({
       status: "success",
       message: "Created",
+      code: 201,
       data: { code: otp },
     });
   } catch (error) {
@@ -23,6 +25,7 @@ const generateOTP = async (req, res) => {
         {
           message: "Internal server error",
           code: 500,
+          data: error,
         },
       ],
     });
