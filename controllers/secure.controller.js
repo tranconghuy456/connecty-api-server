@@ -12,12 +12,8 @@ const generateOTP = async (req, res) => {
     if (!otp) throw new Error();
     // save otp code to local
     req.app.locals.OTP = otp;
-    return res.status(201).json({
-      status: "success",
-      message: "Created",
-      code: 201,
-      data: { code: otp },
-    });
+    console.log(otp);
+    return res.sendStatus(201).end();
   } catch (error) {
     return res.status(500).json({
       status: "error",

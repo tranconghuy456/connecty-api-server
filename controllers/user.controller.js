@@ -33,12 +33,15 @@ const getUser = async (req, res) => {
 
     // if defined
     let { password, accessToken, refreshToken, ...next } = user._doc;
-    return res.status(200).json({
-      status: "success",
-      code: 200,
-      message: "OK",
-      data: { ...next },
-    });
+    return res
+      .status(200)
+      .json({
+        status: "success",
+        code: 200,
+        message: "OK",
+        data: { ...next },
+      })
+      .end();
   } catch (error) {
     return res.status(500).json({
       status: "error",

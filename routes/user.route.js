@@ -16,4 +16,6 @@ userRouter
   .patch()
   .delete();
 
-userRouter.route("/recover").post(authController.recover);
+userRouter
+  .route("/recover")
+  .post(middleware.verifyOTP, authController.recover, (req, res) => res.end());

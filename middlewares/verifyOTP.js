@@ -1,8 +1,9 @@
 export const verifyOTP = async (req, res, next) => {
   try {
-    let { code } = req.query;
+    let { code } = req.method === "GET" ? req.query : req.body;
 
     // if invalid
+    console.log(code);
     if (!code) {
       return res.status(400).json({
         status: "error",
@@ -22,7 +23,7 @@ export const verifyOTP = async (req, res, next) => {
       req.app.locals.OTP = null; // reset otp
       req.app.locals.Session = null; // logout
       // success
-      res.status(200).json({ status: "success", message: "OK", code: 200 });
+      // res.status(201).end({ code });
       next();
     } else {
       // error

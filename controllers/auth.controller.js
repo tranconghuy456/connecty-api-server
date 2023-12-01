@@ -21,7 +21,7 @@ const register = async (req, res) => {
           },
         ],
       });
-    } else if (user.username) {
+    } else if (user && user.username) {
       // if username is exist
       return res.status(409).json({
         status: "error",
@@ -30,7 +30,6 @@ const register = async (req, res) => {
             message: "The Username is already in use",
             code: 409,
             field: "username",
-            data: {},
           },
         ],
       });
@@ -50,11 +49,7 @@ const register = async (req, res) => {
       .then(() => {
         let { password, ...next } = data;
         // if succeed
-        return res.status(201).json({
-          status: "success",
-          code: 201,
-          message: "Register successfully",
-        });
+        return res.sendStatus(201).end();
       })
       .catch((error) => {
         throw new Error(error);
@@ -145,10 +140,14 @@ const login = async (req, res) => {
     // });
     req.app.locals.Session = refreshToken;
 
-    return res.status(200).json({
-      status: "success",
-      data: { accessToken },
-    });
+    return res
+      .status(200)
+      .json({
+        status: "success",
+        data: { accessToken },
+        code: 200,
+      })
+      .end();
   } catch (error) {
     return res.status(500).json({
       status: "error",
@@ -161,7 +160,7 @@ const login = async (req, res) => {
       ],
     });
   }
-};  
+};
 
 const recover = async (req, res) => {
   try {
@@ -193,12 +192,7 @@ const recover = async (req, res) => {
       { new: true }
     )
       .then((result) => {
-        return res.status(200).json({
-          status: "success",
-          message: "Updated password",
-          code: 200,
-          data: { result },
-        });
+        return res.sendStatus(204).end();
       })
       .catch((error) => {
         throw new Error(error);
