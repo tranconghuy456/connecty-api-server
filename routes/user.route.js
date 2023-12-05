@@ -11,10 +11,7 @@ userRouter
 userRouter.route("/register").post(authController.register);
 userRouter
   .route("/:username")
-  .get(middleware.verifyAccessToken, userController.getUser)
-  .put()
-  .patch()
-  .delete();
+  .get(middleware.verifyAccessToken, userController.getUser);
 
 userRouter
   .route("/recover")
