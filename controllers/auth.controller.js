@@ -1,69 +1,105 @@
 import { UserModel } from "../models/user.model.js";
 import { comparePassword, hashPassword } from "../utils/hashing.js";
 import { generateAccessToken, generateRefreshToken } from "../utils/token.js";
-import * as ENV from "../configs/root.js";
+import { SECURITY } from "../configs/security.js";
 
 const register = async (req, res) => {
   try {
-    let data = req.body;
+    let reqData = req.body;
+    let client = req.get("host") || undefined;
+    var { _requestID, _ref, password, email, username, ...next } = reqData;
 
     // checking existance
-    let user = await UserModel.findOne({ email: data.email });
+    let user = await UserModel.findOne({ email });
     // if email is exist
     if (user) {
+      // return res.status(409).json({
+      //   status: "error",
+      //   errors: [
+      //     {
+      //       message: "The Email is already in frrusr n,e5y5fvb vf gcvnks ",
+      //       code: 409,
+      //       field: "email",
+      //     },
+      //   ],
+      // });
       return res.status(409).json({
-        status: "error",
-        errors: [
-          {
-            message: "The Email is already in use",
-            code: 409,
-            field: "email",
-          },
-        ],
+        _requestID,
+        _ref: ["#email"],
+        client,
+        status: {
+          message: "The email is already in use",
+          code: 409,
+        },
       });
-    } else if (user && user.username) {
+    } else if (user && user?.username) {
       // if username is exist
+      // return res.status(409).json({
+      //   status: "error",
+      //   errors: [
+      //     {
+      //       message: "The Username is already in use",
+      //       code: 409,
+      //       field: "username",
+      //     },
+      //   ],
+      // });
       return res.status(409).json({
-        status: "error",
-        errors: [
-          {
-            message: "The Username is already in use",
-            code: 409,
-            field: "username",
-          },
-        ],
+        _requestID,
+        _ref: ["#username"],
+        client,
+        status: {
+          message: "The username is already in use",
+          code: 409,
+        },
       });
     }
     // passed
     // hash password
-    let hashedPwd = await hashPassword(
-      data.password,
-      ENV.SECURITY["SALT_ROUNDS"]
-    );
+    let hashedPwd = await hashPassword(password, SECURITY.SALT_ROUNDS);
     // push profile to db
     new UserModel({
-      ...data,
+      username,
+      email,
       password: hashedPwd,
+      ...next,
     })
       .save()
-      .then(() => {
-        let { password, ...next } = data;
+      .then(({ mfaRequired, verified, createdAt }) => {
         // if succeed
-        return res.sendStatus(201).end();
+        return res.status(201).json({
+          _requestID,
+          _ref,
+          client,
+          data: {
+            user: {
+              username,
+              email,
+              password: hashedPwd,
+              ...next,
+            },
+            mfaRequired,
+            verified,
+            createdAt,
+          },
+          status: {
+            message: "The account was created successfully",
+            code: 201,
+          },
+        });
       })
-      .catch((error) => {
-        throw new Error(error);
+      .catch(() => {
+        throw new Error();
       });
   } catch (error) {
     return res.status(500).json({
-      status: "error",
-      errors: [
-        {
-          message: "Internal server error",
-          code: 500,
-          data: error,
-        },
-      ],
+      _requestID,
+      _ref,
+      client,
+      status: {
+        message: "Internal server error",
+        code: 500,
+      },
     });
   }
 };

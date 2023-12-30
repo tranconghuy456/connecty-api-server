@@ -1,0 +1,79 @@
+[{
+        "_FUNC": "SIGNUP",
+        "_TYPE": "RESPONSE",
+        "_requestID": "[string]",
+        "data": {
+            "user": {
+                "firstname": "[string]",
+                "lastname": "[string]",
+                "photoURL": "[url]",
+                "phoneNumber": "[number]",
+                "age": "[number]",
+                "job": "[string]",
+                "username": "[string]",
+                "password": "[secured]",
+                "email": "[string]"
+            },
+            "mfaRequired": false,
+            "verified": false,
+            "createdAt": "[datetime]"
+        },
+        "client": "[url]",
+        "status": {
+            "message": "The account was created successfully",
+            "code": 201
+        },
+        "_ref": ["#username", "#email", "#password"]
+    },
+    {
+        "_FUNC": "SIGNUP",
+        "_TYPE": "REQUEST",
+        "_METHOD": "POST",
+        "_requestID": "[string]",
+        "data": {
+            "firstname": "[string]",
+            "lastname": "[string]",
+            "photoURL": "[url]",
+            "phoneNumber": "[number]",
+            "age": "[number]",
+            "job": "[string]",
+            "username": "[string]",
+            "password": "[secured]",
+            "email": "[string]"
+        },
+        "client": "[url]",
+        "_ref": ["#username", "#email", "#password"]
+    },
+
+
+
+
+
+    {
+        "_FUNC": "LOGIN",
+        "_TYPE": "REQUEST",
+        "_METHOD": "POST",
+        "_requestID": "[string]",
+        "data": {
+            "username": "[string]",
+            "password": "[string]"
+        },
+        "client": "[url]",
+        "_ref": ["#username", "#password"]
+    },
+    {
+        "_FUNC": "LOGIN",
+        "_TYPE": "RESPONSE",
+        "_requestID": "[string]",
+        "data": {
+            "username": "[string]",
+            "accessToken": "[string]"
+        },
+        "status": {
+            "message": "You are successfully logged in",
+            "status": 200
+        },
+        "client": "[url]",
+        "_ref": ["#username", "#password"]
+    }
+]
