@@ -13,16 +13,6 @@ const register = async (req, res) => {
     let user = await UserModel.findOne({ email });
     // if email is exist
     if (user) {
-      // return res.status(409).json({
-      //   status: "error",
-      //   errors: [
-      //     {
-      //       message: "The Email is already in frrusr n,e5y5fvb vf gcvnks ",
-      //       code: 409,
-      //       field: "email",
-      //     },
-      //   ],
-      // });
       return res.status(409).json({
         _requestID,
         _ref: ["#email"],
@@ -33,17 +23,6 @@ const register = async (req, res) => {
         },
       });
     } else if (user && user?.username) {
-      // if username is exist
-      // return res.status(409).json({
-      //   status: "error",
-      //   errors: [
-      //     {
-      //       message: "The Username is already in use",
-      //       code: 409,
-      //       field: "username",
-      //     },
-      //   ],
-      // });
       return res.status(409).json({
         _requestID,
         _ref: ["#username"],
@@ -65,7 +44,7 @@ const register = async (req, res) => {
       ...next,
     })
       .save()
-      .then(({ mfaRequired, verified, createdAt }) => {
+      .then(({ MFARequired, verified, createdAt }) => {
         // if succeed
         return res.status(201).json({
           _requestID,
@@ -78,7 +57,7 @@ const register = async (req, res) => {
               password: hashedPwd,
               ...next,
             },
-            mfaRequired,
+            MFARequired,
             verified,
             createdAt,
           },
@@ -106,53 +85,53 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    let data = req.body;
+    let client = req.get("host") || undefined;
+    let reqData = req.body;
+    let { _requestID, _ref } = reqData;
 
     // if invalid data
-    if (!data.username) {
+    if (!reqData.username) {
       return res.status(400).json({
-        status: "error",
-        errors: [
-          {
-            message: "Invalid param(s)",
-            code: 400,
-            field: "username",
-          },
-        ],
+        _requestID,
+        _ref,
+        client,
+        status: {
+          message: "Invalid param(S)",
+          code: 400,
+        },
       });
     }
 
     // if valid
+    let { username, password } = reqData;
     // define user
-    let user = await UserModel.findOne({ username: data.username });
+    let user = await UserModel.findOne({ username: username });
     // if undefined user
     if (!user) {
       return res.status(404).json({
-        status: "error",
-        errors: [
-          {
-            message: "The Username you entered doens't belong to any account",
-            code: 404,
-            field: "username",
-          },
-        ],
+        _requestID,
+        _ref: ["#username"],
+        client,
+        status: {
+          message: "The username you enterd doesn't belong to any account",
+          code: 404,
+        },
       });
     }
 
     // if defined
     // compare password
-    let comparedPwd = await comparePassword(data.password, user.password);
+    let comparedPwd = await comparePassword(password, user.password);
     // if not match
     if (!comparedPwd) {
       return res.status(401).json({
-        status: "error",
-        errors: [
-          {
-            message: "The Password is incorrect",
-            code: 401,
-            field: "password",
-          },
-        ],
+        _requestID,
+        _ref: ["#password"],
+        client,
+        status: {
+          message: "The password is incorred",
+          code: 401,
+        },
       });
     }
 
@@ -176,24 +155,27 @@ const login = async (req, res) => {
     // });
     req.app.locals.Session = refreshToken;
 
-    return res
-      .status(200)
-      .json({
-        status: "success",
-        data: { accessToken },
+    return res.status(200).json({
+      _requestID,
+      _ref,
+      client,
+      data: {
+        accessToken,
+      },
+      status: {
+        message: "Login successfully",
         code: 200,
-      })
-      .end();
+      },
+    });
   } catch (error) {
     return res.status(500).json({
-      status: "error",
-      errors: [
-        {
-          message: "Internal server error",
-          code: 500,
-          data: error,
-        },
-      ],
+      _requestID,
+      _ref,
+      client,
+      status: {
+        message: "Internal server error",
+        code: 500,
+      },
     });
   }
 };
